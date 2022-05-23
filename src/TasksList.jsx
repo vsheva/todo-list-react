@@ -7,26 +7,29 @@ class TasksList extends React.Component {
   state = {
     tasks: [],
   };
-
+  //показываем задачи, когда компонента отрисовалась - запрос за всеми тасками
   componentDidMount() {
     this.fetchTasks();
   }
 
+  //0* ========== ф-я делает запрос на сервер и потом эти задачи устанавливает в state
   fetchTasks = () => {
     fetchTasksList().then(tasksList => {
       this.setState({ tasks: tasksList });
     });
   };
 
-  onCreate = text => {
+  //1*
+  onMyCreate = text => {
     const newTask = {
       text,
       done: false,
     };
 
-    return createTask(newTask).then(() => this.fetchTasks());
+    createTask(newTask).then(() => this.fetchTasks());
   };
 
+  //2*
   handleTaskStatusChange = id => {
     const { done, text } = this.state.tasks.find(task => task.id === id);
     const updatedTask = {
@@ -37,6 +40,7 @@ class TasksList extends React.Component {
     updateTask(id, updatedTask).then(() => this.fetchTasks());
   };
 
+  //3*
   handleTaskDelete = id => {
     deleteTask(id).then(() => this.fetchTasks());
   };
@@ -48,7 +52,7 @@ class TasksList extends React.Component {
 
     return (
       <div className="todo-list">
-        <CreateTaskInput onCreate={this.onCreate} />
+        <CreateTaskInput onCreate={this.onMyCreate} />
         <ul className="list">
           {sortedList.map(elem => (
             <Task
@@ -66,34 +70,30 @@ class TasksList extends React.Component {
 
 export default TasksList;
 
-//*
-// done={elem.done}
-// text={elem.text}
+//3* ======================handleTaskDelete
+//1. filter tasks и оставить все, кроме удаляемого
+//2. обновить состояние
+// const updatedTasks = this.state.tasks.filter(elem => elem.id !== id);
+// this.setState({ tasks: updatedTasks });
 
+//1* =========================onCreate
+//1. Создать задачу(обьект)
+//2. запостить задачу на сервер
+//3. извлечь (fetch) лист с сервера
+// const { tasks } = this.state;
+
+//2*  ====================== handleTaskStatusChange - обновление
+//1. найти задачу в состоянии по id
+//2. создать updated task (update: создам тот же обьект с и переключить value в done)
+//3. обновить задачу на сервере  (PUT)
+//4. извлечь (fetch) обновленный список задач (POST)
+
+//==========================data===========================
 //       { text: 'Buy milk', done: false, id: 1 },
 //       { text: 'Pick up Tom from airport', done: false, id: 2 },
 //       { text: 'Visit party', done: false, id: 3 },
 //       { text: 'Visit doctor', done: true, id: 4 },
 //       { text: 'Buy meat', done: true, id: 5 },
 
-//handleTaskStatusChange
-//1.найти задачу в списке
-//2.переключить value в done
-//3. сохранить изменения в setState
-
-//1. найти задачу в состоянии по id
-//2. создать updated task
-//3. обновить задачу на сервере
-//4. извлечь (fetch) обновленный список задач
-
-//handleTaskDelete
-//1. filter tasks и оставить все, кроме удаляемого
-//2. обновить состояние
-// const updatedTasks = this.state.tasks.filter(elem => elem.id !== id);
-// this.setState({ tasks: updatedTasks });
-
-//onCreate
-//1. Создать задачу(обьект)
-//2. запостить задачу на сервер
-//3. извлечь (fetch) лист с сервера
-// const { tasks } = this.state;
+// done={elem.done}
+// text={elem.text}
